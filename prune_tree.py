@@ -6,6 +6,7 @@ insert are already provided -- do not modify them. See
 HW4_The_Pruning_Gardener.md, Part B, for the full requirements.
 """
 
+
 from typing import Optional
 
 
@@ -30,28 +31,50 @@ def insert(root: Optional[TreeNode], key: int) -> TreeNode:
 
 
 def delete(root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
-    """
-    Recursively delete `key` from the subtree rooted at `root`.
-    Return the new subtree root. Handle all three cases from Part A,
-    Question 1 (leaf, one child, two children -- via inorder
-    successor). Deleting a key not present should leave the tree
-    unchanged.
-    """
-    # TODO
-    raise NotImplementedError
+    if root is None:
+        return None
+
+    if key < root.key:
+        root.left = delete(root.left, key)
+    elif key > root.key:
+        root.right = delete(root.right, key)
+    else:
+        if root.left is None and root.right is None:
+            return None
+
+        elif root.left is None:
+            return root.right
+        elif root.right is None:
+            return root.left
+
+        else:
+            successor = root.right
+
+            while successor.left is not None:
+                successor = successor.left
+
+            root.key = successor.key
+            root.right = delete(root.right, successor.key)
+
+    return root
 
 
 def count_nodes(root: Optional[TreeNode]) -> int:
-    """Recursively return the number of nodes in the subtree rooted at `root`."""
-    # TODO
-    raise NotImplementedError
+    if root is None:
+        return 0
+
+    return 1 + count_nodes(root.left) + count_nodes(root.right)
 
 
 def kth_smallest(root: Optional[TreeNode], k: int) -> Optional[int]:
-    """
-    Return the k-th smallest key (1-indexed) in the subtree rooted at
-    `root`, using count_nodes on subtrees to navigate directly instead
-    of a full inorder traversal. Return None if k is out of range.
-    """
-    # TODO
-    raise NotImplementedError
+    if root is None or k < 1:
+        return None
+
+    left_count = count_nodes(root.left)
+
+    if k == left_count + 1:
+        return root.key
+    elif k <= left_count:
+        return kth_smallest(root.left, k)
+    else:
+        return kth_smallest(root.right, k - left_count - 1)
